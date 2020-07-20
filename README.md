@@ -50,7 +50,7 @@ Have not made or named the docker container, check back soon :)
 
 ## Powered by
 
-* [Django](https://www.djangoproject.com) - The web framework used
+* [Flask](https://flask.palletsprojects.com/en/1.1.x/) - The web framework used
 * [Python3](https://www.python.org) - Language used
 * [Docker](https://docs.docker.com/get-docker/) - Orchestration
 * [CloudFlare](https://www.cloudflare.com) - Main web proxy service.
