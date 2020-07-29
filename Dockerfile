@@ -1,0 +1,25 @@
+FROM ubuntu:bionic
+LABEL maintainer="github.com/JamesWRC"
+
+#   Update system and install cron.
+RUN apt-get update && apt-get -y install cron
+
+#   Install Python and pip.
+RUN apt-get -y install python3 && apt-get -y install python3-pip
+
+#   Install required Python libraries
+RUN pip3 install requests && pip3 install Flask && pip3 install SQLAlchemy && pip3 install graphene
+
+#   Copy code across
+ADD ./codebase /codebase
+
+#   Give app andscripts permissions to run in the container.
+RUN chmod +x /codebase/app.py
+RUN chmod +x /codebase/entrypoint.sh
+RUN chmod +x /codebase/runner.sh
+
+
+#   Expose local web server port (80)
+EXPOSE 80
+# run the server
+CMD /codebase/entrypoint.sh
