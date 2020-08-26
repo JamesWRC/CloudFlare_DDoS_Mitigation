@@ -2,8 +2,7 @@
 
 import json
 import requests
-from gql import gql, Client
-from gql.transport.requests import RequestsHTTPTransport
+import database
 
 
 class ConnectionTest:
@@ -11,7 +10,7 @@ class ConnectionTest:
         self.settingsFilePath = 'settings.json'
         self.cloudflareAPIURL = 'https://api.cloudflare.com/client/v4/'
         print(
-            "\n\n\t[+]  🧪  One moment, running a few tests before the tool starts.\n")
+            "\n\n\t[+]    One moment, running a few tests before the tool starts.\n")
 
     def testConnectionToCloudFlareAPI(self):
         print(
@@ -41,7 +40,7 @@ class ConnectionTest:
             else:
                 print(
                     "\n\t[+]\t\t Could not communicate with Cloudflare API. Credentials provided are bad. Please fix credentials and try again.\n")
-                print("\t[+]\t\t ❗️❗️ ERROR: \n")
+                print("\t[+]\t\t  ERROR: \n")
                 print("\t\t\t\t" + str(request))
 
     #   Test if the Docker container has an internet connection and can query for Cloudflare.
@@ -53,7 +52,7 @@ class ConnectionTest:
             print("\t[+]\t\t Successfully pinged Cloudflare.")
             return True
         else:
-            print("\t[+]\t ❗️❗️ ERROR: \n")
+            print("\t[+]\t  ERROR: \n")
             print(
                 "\t[+]\t Container could not connect to the internet, or cannot resolve Cloudflare DNS.")
             return False
@@ -69,81 +68,78 @@ class ConnectionTest:
         #   Ensure that there is actual data in this variable. IE the file successfully opened
         if settings is not None:
             #   Create the request headers and specify the URL
-            url = "https://api.cloudflare.com/client/v4/graphql/"
-            headers = {
+            url = self.cloudflareAPIURL + 'zones/' + \
+                settings['CF_ZONE_ID'] + '/security/events?limit=1000'
+            header = {
                 'X-Auth-Email': settings['CF_EMAIL_ADDRESS'],
                 'X-Auth-Key': settings['CF_API_TOKEN'],
                 'content-type': 'application/json'
             }
 
-           # Select your transport with a defined url endpoint
-            transport = RequestsHTTPTransport(
-                url="https://api.cloudflare.com/client/v4/graphql/",
-                use_json=True,
-                headers=headers
-            )
+            query = {"query": "query ListFirewallEvents($zoneTag: string, $filter: FirewallEventsAdaptiveFilter_InputObject) {\
+                    viewer {\
+                        zones(filter: {zoneTag: $zoneTag}) {\
+                            firewallEventsAdaptive(\
+                                filter: $filter\
+                                limit: 10\
+                                orderBy: [datetime_DESC]\
+                            ) {\
+                                action\
+                                clientAsn\
+                                clientCountryName\
+                                clientIP\
+                                clientRequestPath\
+                                clientRequestQuery\
+                                datetime\
+                                source\
+                                userAgent\
+                            }\
+                        }\
+                    }\
+                }",
+                     "variables": {
+                         "zoneTag": "CLOUDFLARE_ZONE_ID",
+                         "filter": {
+                             "datetime_geq": "2020-04-24T11:00:00Z",
+                             "datetime_leq": "2020-04-24T12:00:00Z"
+                         }
+                     }
+                     }
+            request = requests.get(
+                url, headers=header, json=query)
+            # print(request.json())
+            for a in request.json()["result"]:
+                print(a)
+                print("---")
+                print(a["ip"])
+                host = database.Visitors()
+                host.addVisitor(ip_address=a["ip"], user_agent=a["ua"], method=a["method"], path=a["uri"], query_string="query_string",
+                                asn=a["country"], country=a["country"], rule_id=a["rule_id"], requested_at=a["occurred_at"])
+                print("---")
 
-            # Create a GraphQL client using the defined transport
-            client = Client(
-                transport=transport,
-                fetch_schema_from_transport=True
-            )
-
-            query = gql('''
-                query ListFirewallEvents($zoneTag: string, $filter: FirewallEventsAdaptiveFilter_InputObject) {
-                    viewer {
-                        zones(filter: {zoneTag: $zoneTag}) {
-                            firewallEventsAdaptive(
-                                filter: $filter
-                                limit: 1000
-                                orderBy: [datetime_DESC,
-                                    clientCountryName_DESC]
-                            ) {
-                                action
-                                clientAsn
-                                clientCountryName
-                                clientIP
-                                clientRequestPath
-                                clientRequestQuery
-                                datetime
-                                source
-                                userAgent
-                                }
-                            }
-                        }
-                    }
-                    ''')
-            variables = {
-                "zoneTag": "12321",
-                "filter": {
-                    "datetime_geq": "2020-07-26T01:00:00Z",
-                    "datetime_leq": "2020-07-27T23:00:00Z"
-                }
-            }
-            result = client.execute(query)
             # result = schema.execute(qu, variable_values={"zoneTag": "12321",
             #                                              "filter": {
             #                                                  "datetime_geq": "2020-07-26T01:00:00Z",
             #                                                  "datetime_leq": "2020-07-27T23:00:00Z"
             #                                              }})
 
-            gql_variables = {
-                "zoneTag": settings['CF_ZONE_ID'],
-                "filter": {
-                    "datetime_geq": "2020-07-26T01:00:00Z",
-                    "datetime_leq": "2020-07-27T23:00:00Z"
-                }
-            }
+            # gql_variables = {
+            #     "zoneTag": settings['CF_ZONE_ID'],
+            #     "filter": {
+            #         "datetime_geq": "2020-07-26T01:00:00Z",
+            #         "datetime_leq": "2020-07-27T23:00:00Z"
+            #     }
+            # }
             # query = {
             #     "query": str(gql_query.replace("\n", "").replace(" ", "")),
             #     "variables": str(gql_variables)
             # }
-            print(result['data'])
+            # print(result['data'])
             exit(0)
-            #   Make the r  equest
-            request = requests.post(
-                url, data=a, headers=headers).json()
-            print(request)
+            #   Make the request
+            # request = requests.post(
+            #     url, data=a, headers=headers).json()
+            # print(request)
             # #   Test if the success key in the JSON responce is there and is True
             # if request['success'] == True:
             #     print(
@@ -152,10 +148,10 @@ class ConnectionTest:
             # else:
             #     print(
             #         "\n\t[+]\t\t Could not communicate with Cloudflare API. Credentials provided are bad. Please fix credentials and try again.\n")
-            #     print("\t[+]\t\t ❗️❗️ ERROR: \n")
+            #     print("\t[+]\t\t  ERROR: \n")
             #     print("\t\t\t\t" + str(request))
 
-    #   The 'MAIN' method to run the tests.
+            #   The 'MAIN' method to run the tests.
 
     def runTests(self):
         print("\t[+]\t\t Running preflight tests...")
@@ -163,11 +159,11 @@ class ConnectionTest:
         if testResults:
             testResults = self.testConnectionToCloudFlareAPI()
         if testResults:
-            print("\t[+]\t\t  ✅  All preflight tests have passed successfully...")
+            print("\t[+]\t\t   All preflight tests have passed successfully...")
 
             print("\t[+]\t\t Launching services, now...\n\n")
         else:
-            print("\n\t[+]\t  ❌  One or more preflight tests failed, meaning this tool may not work properly if at all. Fix these errors then try again.\n\n")
+            print("\n\t[+]\t   One or more preflight tests failed, meaning this tool may not work properly if at all. Fix these errors then try again.\n\n")
         return testResults
 
 

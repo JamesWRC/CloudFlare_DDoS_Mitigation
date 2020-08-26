@@ -18,7 +18,7 @@ class Database:
     def createVisitors(self):
         #   Visitors table holds
         visitors = Table('visitors', metadata,
-                         Column('ip_Address', String(40), primary_key=True),
+                         Column('ip_Address', String(40)),
                          Column('user_agent', String(256)),
                          Column('method', String(10)),
                          Column('path', String(256)),
@@ -26,6 +26,7 @@ class Database:
                          Column('asn', String(256)),
                          Column('country', String(256)),
                          Column('rule_id', String(256)),
+                         Column('requested_at', String(256)),
                          )
         visitors.create()
 
@@ -59,12 +60,32 @@ class Visitors(Base):
     asn = Column(String)
     country = Column(String)
     rule_id = Column(String)
+    requested_at = Column(String)
+
+    # def __init__(self, ip_address, user_agent, method, path, query_string,
+    #              asn, country, rule_id):
+    #     self.ip = ip_address
+    #     self.user_agent = user_agent
+    #     self.method = method
+    #     self.path = path
+    #     self.query_string = query_string
+    #     self.asn = asn
+    #     self.country = country
+    #     self.rule_id = rule_id
 
     def addVisitor(self, ip_address, user_agent, method, path, query_string,
-                   asn, country, rule_id):
+                   asn, country, rule_id, requested_at):
         #   Create a new visitor to the database.
-        visitor = Visitors(ip_address=ip_address, user_agent=user_agent, method=method, path=path,
-                           query_string=query_string, asn=asn, country=country, rule_id=rule_id)
+        visitor = Visitors()
+        visitor.ip_address = ip_address
+        visitor.user_agent = user_agent
+        visitor.method = method
+        visitor.path = path
+        visitor.query_string = query_string
+        visitor.asn = asn
+        visitor.country = country
+        visitor.rule_id = rule_id
+        visitor.requested_at = requested_at
         session.add(visitor)
         session.commit()
 
@@ -95,8 +116,9 @@ class LogHistory(Base):
 if __name__ == '__main__':
 
     #   build tables
+    print("hello")
     Database().buildDatabaseTables()
 
     #   Test data
-    Visitors().addVisitor('127.0.0.1', 'iOS', 'GET', '/', 'index', 'AU', 'Melb', '123')
-    LogHistory().addLogHistory('a', 'b')
+    # Visitors().addVisitor('127.0.0.1', 'iOS', 'GET', '/', 'index', 'AU', 'Melb', '123')
+    # LogHistory().addLogHistory('a', 'b')
