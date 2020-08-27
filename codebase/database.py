@@ -20,13 +20,13 @@ class Database:
         visitors = Table('visitors', metadata,
                          Column('ip_Address', String(40)),
                          Column('user_agent', String(256)),
-                         Column('method', String(10)),
                          Column('path', String(256)),
                          Column('query_string', String(256)),
                          Column('asn', String(256)),
                          Column('country', String(256)),
                          Column('rule_id', String(256)),
                          Column('requested_at', String(256)),
+                         Column('ray_name', String(32)),
                          )
         visitors.create()
 
@@ -55,41 +55,46 @@ class Visitors(Base):
     ip_address = Column(String)
     action = Column(String)
     user_agent = Column(String)
-    method = Column(String)
     path = Column(String)
     query_string = Column(String)
     asn = Column(String)
     country = Column(String)
     rule_id = Column(String)
     requested_at = Column(String)
-
-    # def __init__(self, ip_address, user_agent, method, path, query_string,
-    #              asn, country, rule_id):
-    #     self.ip = ip_address
-    #     self.user_agent = user_agent
-    #     self.method = method
-    #     self.path = path
-    #     self.query_string = query_string
-    #     self.asn = asn
-    #     self.country = country
-    #     self.rule_id = rule_id
+    ray_name = Column(String)
 
     def addVisitor(self, action, ip_address, user_agent, path, query_string,
-                   asn, country, rule_id, requested_at):
+                   asn, country, rule_id, requested_at, ray_name):
         #   Create a new visitor to the database.
         visitor = Visitors()
         visitor.ip_address = ip_address
         visitor.action = action
         visitor.user_agent = user_agent
-        # visitor.method = method
         visitor.path = path
         visitor.query_string = query_string
         visitor.asn = asn
         visitor.country = country
         visitor.rule_id = rule_id
         visitor.requested_at = requested_at
+        visitor.ray_name = ray_name
         session.add(visitor)
         session.commit()
+
+    def getUniqueIPs(self):
+        # Returns a list of unique IP addresses in the Database.
+        query = session.query(
+            Visitors.ip_address.distinct().label("ip_address"))
+        titles = [row.ip_address for row in query.all()]
+        return titles
+
+    def getNumberOfRequestsFromIP(self, ip):
+        count = session.query(Visitors).filter(
+            Visitors.ip_address == ip).count()
+        return count
+
+    def getLastHost(self):
+        aaa = session.query(Visitors).order_by(Visitors.id.desc()).first()
+        return aaa
 
     def __repr__(self):
         #   Return the record in a string format
