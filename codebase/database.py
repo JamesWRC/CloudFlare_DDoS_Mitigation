@@ -53,6 +53,7 @@ class Visitors(Base):
     __tablename__ = 'visitors'
     id = Column(Integer, primary_key=True, autoincrement=True)
     ip_address = Column(String)
+    action = Column(String)
     user_agent = Column(String)
     method = Column(String)
     path = Column(String)
@@ -73,13 +74,14 @@ class Visitors(Base):
     #     self.country = country
     #     self.rule_id = rule_id
 
-    def addVisitor(self, ip_address, user_agent, method, path, query_string,
+    def addVisitor(self, action, ip_address, user_agent, path, query_string,
                    asn, country, rule_id, requested_at):
         #   Create a new visitor to the database.
         visitor = Visitors()
         visitor.ip_address = ip_address
+        visitor.action = action
         visitor.user_agent = user_agent
-        visitor.method = method
+        # visitor.method = method
         visitor.path = path
         visitor.query_string = query_string
         visitor.asn = asn

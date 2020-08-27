@@ -68,8 +68,9 @@ class ConnectionTest:
         #   Ensure that there is actual data in this variable. IE the file successfully opened
         if settings is not None:
             #   Create the request headers and specify the URL
-            url = self.cloudflareAPIURL + 'zones/' + \
-                settings['CF_ZONE_ID'] + '/security/events?limit=1000'
+            # url = self.cloudflareAPIURL + 'zones/' + \
+            #     settings['CF_ZONE_ID'] + '/security/events?limit=1000'
+            url = "https://api.cloudflare.com/client/v4/graphql/"
             header = {
                 'X-Auth-Email': settings['CF_EMAIL_ADDRESS'],
                 'X-Auth-Key': settings['CF_API_TOKEN'],
@@ -81,7 +82,7 @@ class ConnectionTest:
                         zones(filter: {zoneTag: $zoneTag}) {\
                             firewallEventsAdaptive(\
                                 filter: $filter\
-                                limit: 10\
+                                limit: 1000\
                                 orderBy: [datetime_DESC]\
                             ) {\
                                 action\
@@ -98,23 +99,23 @@ class ConnectionTest:
                     }\
                 }",
                      "variables": {
-                         "zoneTag": "CLOUDFLARE_ZONE_ID",
+                         "zoneTag": "d4ec936a3a25343c77ecb893fa6396a2",
                          "filter": {
-                             "datetime_geq": "2020-04-24T11:00:00Z",
-                             "datetime_leq": "2020-04-24T12:00:00Z"
+                             "datetime_geq": "2020-08-26T02:59:49.023731728Z",
+                             "datetime_leq": "2020-08-27T02:59:49.023731728Z"
                          }
                      }
                      }
-            request = requests.get(
+            request = requests.post(
                 url, headers=header, json=query)
             # print(request.json())
-            for a in request.json()["result"]:
+            for a in request.json()["data"]["viewer"]["zones"][0]["firewallEventsAdaptive"]:
                 print(a)
                 print("---")
-                print(a["ip"])
+                print(a["clientIP"])
                 host = database.Visitors()
-                host.addVisitor(ip_address=a["ip"], user_agent=a["ua"], method=a["method"], path=a["uri"], query_string="query_string",
-                                asn=a["country"], country=a["country"], rule_id=a["rule_id"], requested_at=a["occurred_at"])
+                host.addVisitor(action=a["action"], ip_address=a["clientIP"], user_agent=a["userAgent"], path=a["clientRequestPath"], query_string=a["clientRequestQuery"],
+                                asn=a["clientAsn"], country=a["clientCountryName"], rule_id=a["source"], requested_at=a["datetime"])
                 print("---")
 
             # result = schema.execute(qu, variable_values={"zoneTag": "12321",
