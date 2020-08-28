@@ -93,8 +93,13 @@ class Visitors(Base):
         return count
 
     def getLastHost(self):
-        aaa = session.query(Visitors).order_by(Visitors.id.desc()).first()
-        return aaa
+        lastHost = session.query(Visitors).order_by(Visitors.id.desc()).first()
+        return lastHost
+
+    def deleteAllRows(self):
+        session.query(Visitors).delete()
+        session.commit()
+        print("delete all")
 
     def __repr__(self):
         #   Return the record in a string format
