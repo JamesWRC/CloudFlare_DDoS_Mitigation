@@ -8,7 +8,7 @@ RUN apt-get update && apt-get -y install cron
 RUN apt-get -y install python3 && apt-get -y install python3-pip
 
 #   Install required Python libraries
-RUN pip3 install requests && pip3 install Flask && pip3 install SQLAlchemy && pip3 install graphene && pip3 install gql
+RUN pip3 install requests && pip3 install Flask && pip3 install SQLAlchemy
 
 #   Copy code across
 ADD ./codebase /codebase

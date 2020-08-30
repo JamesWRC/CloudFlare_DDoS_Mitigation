@@ -11,6 +11,10 @@ app = Flask(__name__)
 def index():
     return jsonify("hello: world")
 
+    ###                                      ###
+    #   ADD MORE LATER WHEN A WEB UI IS MADE   #
+    ###                                      ###
+
 
 if __name__ == '__main__':
     # application.run(host='0.0.0.0', port=80, debug=True)

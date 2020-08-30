@@ -1,10 +1,13 @@
 from sqlalchemy import Table, Column, Integer, String, MetaData, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-
+from util import Util
+import os
+# Define the util object
+util = Util()
 
 Base = declarative_base()
-db_engine = create_engine('sqlite:///database.sqlite3')
+db_engine = create_engine('sqlite:///' + util.databaseFileName)
 # Try changing this to True and see what happens
 db_engine.echo = False
 metadata = MetaData(db_engine)
@@ -42,8 +45,27 @@ class Database:
         self.createLogHistory()
 
     def buildDatabaseTables(self):
-        print("\n\t[+]\t Building Database...")
+        print("\n\t[+]\t\t Building Database...")
         Base.metadata.create_all(db_engine)
+
+    def testDatabaseExists(self):
+        print(
+                "\n\n\t[-]\t\t Testing the database...\n\n")
+        # Test to see if database exists
+        if os.path.isfile(util.databaseFileName):
+            retVal = True
+            print(
+                "\t[+]\t\t Database exists, OK.")
+        else:
+            retVal = False
+            print(
+                "\t[+]\t\t ERROR: Database not found! This is ok if you are running the tool in a Docker container\
+                \n\t\t\t\tand the container is starting up...")
+            print("\t[+]\t\t INFO: Building a clean database...\n\n")
+
+            # Build database 
+            Database().buildDatabaseTables()
+        return retVal
 
 
 ##############  Below are the classes of the database. ##############
@@ -125,12 +147,6 @@ class LogHistory(Base):
         return "< LogHostory(before_cursor='%s', after_cursor='%s')> " & (self.before_cursor, self.after_cursor)
 
 
-if __name__ == '__main__':
-
-    #   build tables
-    print("hello")
-    Database().buildDatabaseTables()
-
-    #   Test data
-    # Visitors().addVisitor('127.0.0.1', 'iOS', 'GET', '/', 'index', 'AU', 'Melb', '123')
-    # LogHistory().addLogHistory('a', 'b')
+# if __name__ == '__main__':
+#     #   build tables
+#     Database().buildDatabaseTables()
