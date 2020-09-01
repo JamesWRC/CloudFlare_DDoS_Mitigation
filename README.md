@@ -6,9 +6,9 @@ Acts as a free alternative to help reduce server load and cost for origin server
 
 <div align="center">
 
-[![Status](https://img.shields.io/badge/status-active-success.svg)](https://github.com/JamesWRC/MDT_Lite)
-[![GitHub Issues](https://img.shields.io/github/issues/jameswrc/MDT_Lite.svg)](https://github.com/JamesWRC/MDT_Lite/issues)
-[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/JamesWRC/MDT_Lite.svg)](https://github.com/JamesWRC/MDT_Lite/pulls)
+[![Status](https://img.shields.io/badge/status-active-success.svg)](https://github.com/JamesWRC/CloudFlare_DDoS_Mitigation)
+[![GitHub Issues](https://img.shields.io/github/issues/jameswrc/CloudFlare_DDoS_Mitigation.svg)](https://github.com/JamesWRC/CloudFlare_DDoS_Mitigation/issues)
+[![GitHub Pull Requests](https://img.shields.io/github/issues-pr/JamesWRC/CloudFlare_DDoS_Mitigation.svg)](https://github.com/JamesWRC/CloudFlare_DDoS_Mitigation/pulls)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 
 </div>
