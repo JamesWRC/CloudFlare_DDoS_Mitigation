@@ -21,5 +21,8 @@ RUN chmod +x /codebase/runner.sh
 
 #   Expose local web server port (80)
 EXPOSE 80
+
+# Run tests
+RUN ["python3","-u","/codebase/testRunner.py"] 
 # run the server
 CMD /codebase/entrypoint.sh

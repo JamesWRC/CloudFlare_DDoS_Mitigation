@@ -52,7 +52,7 @@ class ConnectionTest:
                 "\t[+]\t\t User credentials OK!")
         else:
             print(
-                "\t[!!]\t\t ERROR: Bad ser credentials! \n")
+                "\t[!!]\t\t ERROR: user credentials! \n")
             print("Response: " + str(response.json()))
         return retVal
 
@@ -121,7 +121,7 @@ class ConnectionTest:
 
     def runTests(self):
         print(
-        "\n\n\t[-]\t\t One moment, running a few network tests...\n\n")
+            "\n\n\t[-]\t\t One moment, running a few network tests...\n\n")
         # Run tests
         if self.connectToCloudflare() and self.authenticationTest() and self.graphQLTest():
             return True
