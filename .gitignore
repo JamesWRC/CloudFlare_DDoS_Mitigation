@@ -1,8 +1,3 @@
-
-codebase/settings.json
 *.pyc
-codebase/'query ListFirewallEvents($zoneTag: stri.py
-codebase/database.sqlite3
 *.sqlite3
-*.sqlite3
-*.sqlite3
+codebase/settings.old
