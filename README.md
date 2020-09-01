@@ -12,7 +12,6 @@ Acts as a free alternative to help reduce server load and cost for origin server
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE.md)
 
 </div>
----
 
 ## 📝 Table of Contents
 
