@@ -1,8 +1,8 @@
 FROM ubuntu:bionic
 LABEL maintainer="github.com/JamesWRC"
 
-#   Update system and install cron.
-RUN apt-get update && apt-get -y install cron
+#   Update system.
+RUN apt-get update
 
 #   Install Python and pip.
 RUN apt-get -y install python3 && apt-get -y install python3-pip
