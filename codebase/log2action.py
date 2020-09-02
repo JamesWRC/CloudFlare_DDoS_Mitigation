@@ -12,9 +12,11 @@ from util import Util
 
 # Define the util object
 util = Util()
+
+
 class log2action:
     def __init__(self):
-        print("a")
+        print("Gettings logs...")
 
     def getFirewallLogs(self):
         settings = util.getSettings()
@@ -43,7 +45,7 @@ class log2action:
             else:
                 lastISOTime = lastVisitorRecorded
                 lastISOTime = lastISOTime.requested_at
-            
+
             # Create the GQL query
             query = {"query": "query ListFirewallEvents($zoneTag: string, $filter: FirewallEventsAdaptiveFilter_InputObject) {\
                     viewer {\
@@ -91,7 +93,6 @@ class log2action:
             print("\t[+]\t ERROR: \n")
             print("\t\t\t" + str(request))
 
-
     def action(self):
         # Here we will query the database to get the IP addresses and take action
         # based on the number of times an IP addrss has made requests in 1 minute
@@ -115,18 +116,19 @@ class log2action:
             #           sites. Thus will be banned. This IP is malicious.
             timeOfIncident = datetime.datetime.now()
 
-            # Create the vars that hold the amount of time that 
+            # Create the vars that hold the amount of time that
             # an action should be applied for
             appliedTillDay = timeOfIncident + \
                 timedelta(days=settings["NUM_JS_CHALLENGE_DAYS"])
             appliedTillWeek = timeOfIncident + \
                 timedelta(days=settings["NUM_CAPTCHA_CHALLENGE_DAYS"])
             appliedTillMonth = timeOfIncident + \
-                timedelta(weeks=settings["NUM_BAN_WEEKS"])  # ~ 3 months (default settings)
+                timedelta(weeks=settings["NUM_BAN_WEEKS"]
+                          )  # ~ 3 months (default settings)
 
             # set the IPaddress type ( IPv4 or IPv6 )
             IPAddressType = "ip"
-            # Default IPv4 addres is 15 chars long 
+            # Default IPv4 addres is 15 chars long
             if len(hostIP) > 15:
                 IPAddressType = "ip6"
 
@@ -160,8 +162,6 @@ class log2action:
         sleepTime = settings["LOG_REQUEST_DELAY"]
 
         while currentTime <= endTime:
-            print(currentTime)
-            print(endTime)
             # Log firewall to database
             self.getFirewallLogs()
 
