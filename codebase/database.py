@@ -50,7 +50,7 @@ class Database:
 
     def testDatabaseExists(self):
         print(
-                "\n\n\t[-]\t\t Testing the database...\n\n")
+            "\n\n\t[-]\t\t Testing the database...\n\n")
         # Test to see if database exists
         if os.path.isfile(util.databaseFileName):
             retVal = True
@@ -59,11 +59,11 @@ class Database:
         else:
             retVal = False
             print(
-                "\t[+]\t\t ERROR: Database not found! This is ok if you are running the tool in a Docker container\
+                "\t[+]\t\t WARNING: Database not found! This is ok if you are running the tool in a Docker container\
                 \n\t\t\t\tand the container is starting up...")
             print("\t[+]\t\t INFO: Building a clean database...\n\n")
 
-            # Build database 
+            # Build database
             Database().buildDatabaseTables()
         return retVal
 

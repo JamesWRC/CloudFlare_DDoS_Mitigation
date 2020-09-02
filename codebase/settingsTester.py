@@ -46,7 +46,7 @@ class SettingsTester:
 
     def checkNeededKeys(self):
         print(
-            "\t[+]\t\t Validating the seetings has the required keys...")
+            "\t[+]\t\t Validating the settings has the required keys...")
         settings = util.getSettings()
 
         # Key definitions
@@ -172,7 +172,6 @@ class SettingsTester:
                 "\t[+]\t\t All keys in settings are valid!")
         # Return false if any test / keys is not found
         return retVal
-
 
     def runTests(self):
         retVal = False
