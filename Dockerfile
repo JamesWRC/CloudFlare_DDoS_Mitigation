@@ -1,4 +1,4 @@
-FROM ubuntu:bionic
+FROM debian:buster
 LABEL maintainer="github.com/JamesWRC"
 
 #   Update system.
