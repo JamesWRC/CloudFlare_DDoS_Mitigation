@@ -31,19 +31,10 @@ class ConnectionTest:
     def authenticationTest(self):
         print(
             "\t[+]\t\t Testing credentials user authentication...")
-        # Get settings
-        settings = util.getSettings()
-        # Get the url needed for user details
-        url = util.getUserDetailsURL()
-
-        headers = {
-            'X-Auth-Email': settings['CF_EMAIL_ADDRESS'],
-            'X-Auth-Key': settings['CF_API_TOKEN'],
-            'content-type': 'application/json'
-        }
 
         # Make request to get user details
-        response = requests.get(url, headers=headers)
+        response = requests.get(util.getUserDetailsURL(),
+                                headers=util.getRequestHeaders())
 
         retVal = False
         if response.status_code == 200:
@@ -65,13 +56,6 @@ class ConnectionTest:
 
         retVal = None
         if settings is not None:
-            # Create the request headers and specify the URL.
-            url = util.getGraphQLURL()
-            header = {
-                'X-Auth-Email': settings['CF_EMAIL_ADDRESS'],
-                'X-Auth-Key': settings['CF_API_TOKEN'],
-                'content-type': 'application/json'
-            }
             # Construct the GQL query to get logs.
             query = {"query": "query ListFirewallEvents($zoneTag: string, $filter: FirewallEventsAdaptiveFilter_InputObject) {\
                     viewer {\
@@ -104,7 +88,7 @@ class ConnectionTest:
                      }
             # Make the request.
             request = requests.post(
-                url, headers=header, json=query)
+                util.getGraphQLURL(), headers=util.getRequestHeaders(), json=query)
             #   Test if the success key in the JSON responce is there and is True
             if request.json()['errors'] == None:
                 print(

@@ -1,9 +1,10 @@
 import json
+import requests
 
 
 class Util:
     def __init__(self):
-        self.rootWorkingDirectory = '/codebase/'
+        self.rootWorkingDirectory = 'codebase/'
         self.settingsFilePath = self.rootWorkingDirectory + 'settings.json'
         self.cloudflareAPIURL = 'https://api.cloudflare.com/client/v4/'
         self.databaseFileName = 'database.sqlite3'
@@ -26,8 +27,16 @@ class Util:
     # Make request to take an action on a host.
     def getAccessRuleURL(self):
         return self.cloudflareAPIURL + 'zones/' + \
-        self.getSettings()['CF_ZONE_ID'] + '/firewall/access_rules/rules'
-    
+            self.getSettings()['CF_ZONE_ID'] + '/firewall/access_rules/rules'
+
+    def getRequestHeaders(self):
+        settings = self.getSettings()
+        return {
+            'X-Auth-Email': settings['CF_EMAIL_ADDRESS'],
+            'X-Auth-Key': settings['CF_API_TOKEN'],
+            'content-type': 'application/json'
+        }
+
     def printLabel(self):
         title = """
          _____ _                 _  __ _
@@ -62,3 +71,7 @@ class Util:
         Cloudflares API. Use this tool at your own risk.
         """
         print(title)
+
+
+if __name__ == '__main__':
+    Util().getAllAccessRules()

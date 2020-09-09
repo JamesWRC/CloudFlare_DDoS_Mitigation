@@ -3,6 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from util import Util
 import os
+from undoAction import UndoAction
+import time
 # Define the util object
 util = Util()
 
@@ -33,16 +35,19 @@ class Database:
                          )
         visitors.create()
 
-    def createLogHistory(self):
-        logHistory = Table('logHistory', metadata,
-                           Column('before_cursor', String(40)),
-                           Column('after_cursor', String(256)),
-                           )
-        logHistory.create()
+    def createActionHistory(self):
+        actionHistory = Table('actionHistory', metadata,
+                              Column('ip_Address', String(40)),
+                              Column('uiid', String(256)),
+                              Column('note', String(256)),
+                              Column('actioned_date', String(256)),
+                              Column('revoke_date', String(256)),
+                              )
+        actionHistory.create()
 
     def run(self):
         self.createVisitors()
-        self.createLogHistory()
+        self.createActionHistory()
 
     def buildDatabaseTables(self):
         print("\n\t[+]\t\t Building Database...")
@@ -65,6 +70,12 @@ class Database:
 
             # Build database
             Database().buildDatabaseTables()
+            # Sleep a few seconds to ensure database is created
+            time.sleep(5)
+            # Populate Access Rules from Cloudflare
+            print(
+                "\t[+]\t\t INFO: Populating database with existing Access Rules...\n\n")
+            UndoAction().updateDatabase()
         return retVal
 
 
@@ -130,23 +141,50 @@ class Visitors(Base):
                                                                                          self.path, self.query_string, self.asn, self.country, self.rule_id)
 
 
-class LogHistory(Base):
+class ActionHistory(Base):
     #   This will store the request log cursors.
     #   Will keep a record of where we are up to in the Cloudflare logs.
-    __tablename__ = 'logHistory'
+    __tablename__ = 'actionHistory'
     id = Column(Integer, primary_key=True, autoincrement=True)
-    before_cursor = Column(String)
-    after_cursor = Column(String)
+    ip_Address = Column(String)
+    uiid = Column(String)
+    note = Column(String)
+    actioned_date = Column(String)
+    revoke_date = Column(String)
 
-    def addLogHistory(self, before, after):
-        log = LogHistory(before_cursor=before, after_cursor=after)
+    def addActionHistory(self, ip, uiid, note, actioned_date, revoke_date):
+        # uiid = unique IP ID
+        log = ActionHistory(ip_Address=ip, uiid=uiid, note=note,
+                            actioned_date=actioned_date, revoke_date=revoke_date)
         session.add(log)
         session.commit()
 
+    def getActionByIP(self, hostip):
+        ret = session.query(ActionHistory).filter_by(ip_Address=hostip).first()
+        return ret
+
+    def getActionByUUID(self, uiid):
+        ret = session.query(ActionHistory).filter_by(uiid=uiid).first()
+        return ret
+
+    def updateRecordUIID(self, ip, id):
+        record = session.query(ActionHistory).filter_by(
+            ip_Address=ip).first()
+        record.uiid = id
+        session.commit()
+
+    def getRules(self):
+        return session.query(ActionHistory).all()
+
+    def deleteRule(self, uiid):
+        session.query(ActionHistory).filter_by(
+            uiid=uiid).delete()
+        session.commit()
+
     def __repr__(self):
-        return "< LogHostory(before_cursor='%s', after_cursor='%s')> " & (self.before_cursor, self.after_cursor)
+        return "< LogHostory(IPAddress='%s', UUID='%s', Note='%s', ActionDate='%s', RevokeDate='%s')> " % (str(self.ip_Address), str(self.uiid), str(self.note), str(self.actioned_date), str(self.revoke_date))
 
 
-# if __name__ == '__main__':
-#     #   build tables
-#     Database().buildDatabaseTables()
+if __name__ == '__main__':
+    #   build tables
+    Database().testDatabaseExists()

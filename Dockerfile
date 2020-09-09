@@ -1,4 +1,4 @@
-FROM debian:buster
+FROM arm32v6/debian:buster
 LABEL maintainer="github.com/JamesWRC"
 
 #   Update system.
